@@ -12,7 +12,7 @@
     internal class ExtraDiffsCleaner(IFileHelper fileHelper)
     {
         
-        public void Run(string folder)
+        public void Run(string folder, bool skipLast = false)
         {
             Regex reg = new Regex(@"_diff\.bak$");
 
@@ -29,14 +29,24 @@
                 fileHelper.AddFile(fileDict, date, file);
             }
 
-
-            foreach (var key in fileDict.Keys)
+            var orderedDict = fileDict.OrderBy(key => key.Key).ToDictionary(obj => obj.Key, obj => obj.Value);
+            foreach (var key in orderedDict.Keys)
             {
-                var list = fileDict[key];
+                
+                if (skipLast) 
+                {
+                    var lastIdx = orderedDict.Keys.Count - 1;
+                    var curIdx = orderedDict.Keys.ToList().IndexOf(key);
+                    if (curIdx == lastIdx)
+                        continue;
+                }
+    
+                var list = orderedDict[key];
                 for (int i = 0; i < list.Count - 2; i++)
                 {
                     if (!string.IsNullOrEmpty(list[i].Path) && File.Exists(list[i].Path))
                     {
+                        Console.WriteLine($"Cleaner. Delete file: {list[i].Path!}");
                         File.Delete(list[i].Path!);
                     }
 

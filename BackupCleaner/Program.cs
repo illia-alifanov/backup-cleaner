@@ -4,14 +4,16 @@ internal class Program
 {
     static void Main(string[] args)
     {
+        string path = "";
+        if (args.Length != 0 && !string.IsNullOrEmpty(args[0]))
+        {
+            path = args[0];
+        }
+        else
+        {
+            path = AppDomain.CurrentDomain.BaseDirectory;
+        }
 
-        //string path = @"C:\temp\backup";
-        if (args.Length == 0)
-            return;
-        if (string.IsNullOrEmpty(args[0]))
-            return;
-
-        string path = args[0];
         if (!Directory.Exists(path))
             return;
 
@@ -27,15 +29,12 @@ internal class Program
         var cleaner = new ExtraDiffsCleaner(new FileHelper());
         try
         {
-            cleaner.Run(path);
+            cleaner.Run(path, skipLast: true);
         }
         catch (Exception ex)
         {
             throw;
         }
-
-
-
 
     }
 }
